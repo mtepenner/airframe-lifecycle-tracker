@@ -1,0 +1,59 @@
+airframe-lifecycle-tracker/
+│
+├── .github/                             # CI/CD pipelines
+│   └── workflows/
+│       ├── test-go-api.yml              # Unit tests for concurrent analytical handlers
+│       ├── test-migrations.yml          # Spins up test DB to verify SCD Type 2 state changes
+│       └── build-dashboard.yml
+│
+├── db_migrations/                       # golang-migrate: strict version control for schema
+│   ├── 000001_init_airframes.up.sql     # Base table for MD-11, Boeing 737, DC-8 immutable facts
+│   ├── 000002_scd2_configs.up.sql       # Airframe_configurations with valid_from/valid_to ranges
+│   ├── 000003_maintenance_logs.up.sql   # Fact table for D-checks and downtime hours
+│   ├── 000004_cube_views.up.sql         # Materialized views pre-computing heavy CUBE matrices
+│   └── Makefile                         # migrate up/down commands
+│
+├── analytics_engine/                    # Go: High-Performance Data Pipeline
+│   ├── cmd/
+│   │   └── api/
+│   │       └── main.go                  # Initializes pgx pool, router, and starts the server
+│   ├── internal/
+│   │   ├── api/
+│   │   │   ├── router.go                # chi or gorilla/mux routing logic
+│   │   │   └── handlers.go              # Endpoints: /api/v1/analytics/downtime, /api/v1/fleet
+│   │   ├── repository/
+│   │   │   ├── queries_scd.go           # Executes time-travel queries for historical livery/seating
+│   │   │   └── queries_rollup.go        # Heavy SQL executing ROLLUP/CUBE and mapping to structs
+│   │   ├── service/
+│   │   │   └── fleet_service.go         # Spawns Goroutines to concurrently fetch multi-dimensional data
+│   │   └── models/
+│   │       └── airframe.go              # Strict Go structs defining the JSON payloads
+│   ├── go.mod
+│   └── Dockerfile                       # Multi-stage build for a minimal Go binary
+│
+├── fleet_dashboard/                     # React + TypeScript: The Visual Presentation Layer
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── TimelineScrubber.tsx     # Interactive slider plotting SCD Type 2 changes over decades
+│   │   │   ├── DowntimeDataGrid.tsx     # Expandable table parsing the hierarchical CUBE SQL responses
+│   │   │   └── MaintenanceHeatmap.tsx   # Calendar heatmap showing D-Check frequency
+│   │   ├── hooks/
+│   │   │   ├── useAirframeHistory.ts    # Fetches specific tail number timelines
+│   │   │   └── useFleetAnalytics.ts     # Aggressive caching via React Query/SWR for the matrix
+│   │   ├── stores/
+│   │   │   └── useFilterStore.ts        # Zustand: manages complex global filters (Year, Model, Operator)
+│   │   ├── styles/
+│   │   │   └── theme.ts                 # CSS-in-JS defining the minimalist blue/purple color palette
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── package.json
+│   └── Dockerfile                       # Builds static React assets and serves via Nginx
+│
+├── infrastructure/                      # Deployment Orchestration
+│   ├── postgres-db.yaml                 # Persistent volume claims and Postgres config
+│   ├── analytics-api.yaml               # Go backend deployment
+│   └── ingress.yaml                     # Nginx ingress routing traffic to Go vs React
+│
+├── docker-compose.yml                   # Local dev: Spins up Postgres, Go Engine, and React Dashboard
+├── Makefile                             # Shortcuts for docker-compose up, db migrations, and testing
+└── README.md
