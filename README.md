@@ -44,7 +44,7 @@ Airframe Lifecycle Tracker is a high-performance analytics platform and visual d
    # Spins up Postgres, the Go Engine, and the React Dashboard
    docker-compose up
 
-```
+   ```
 
 
 4. Run the database migrations to initialize the schema:
