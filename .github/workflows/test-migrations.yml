@@ -1,0 +1,43 @@
+name: test-migrations
+
+on:
+  push:
+    paths:
+      - db_migrations/**
+      - .github/workflows/test-migrations.yml
+  pull_request:
+    paths:
+      - db_migrations/**
+
+jobs:
+  migration-check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: airframe
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d airframe"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install migrate CLI
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/migrate
+      - name: Run migrations
+        run: |
+          migrate -path db_migrations -database "postgres://postgres:postgres@localhost:5432/airframe?sslmode=disable" up
+      - name: Validate materialized view exists
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          psql "postgres://postgres:postgres@localhost:5432/airframe?sslmode=disable" -c "SELECT count(*) FROM mv_fleet_cube;"

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analytics-api
+  template:
+    metadata:
+      labels:
+        app: analytics-api
+    spec:
+      containers:
+        - name: analytics-api
+          image: ghcr.io/mtepenner/airframe-lifecycle-tracker-analytics:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              value: postgres://postgres:postgres@airframe-postgres:5432/airframe?sslmode=disable
+            - name: PORT
+              value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-api
+spec:
+  selector:
+    app: analytics-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

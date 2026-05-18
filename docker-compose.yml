@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: airframe-postgres
+    environment:
+      POSTGRES_DB: airframe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrations:
+    image: migrate/migrate:v4.17.1
+    container_name: airframe-migrations
+    command:
+      - "-path"
+      - "/migrations"
+      - "-database"
+      - "postgres://postgres:postgres@postgres:5432/airframe?sslmode=disable"
+      - "up"
+    volumes:
+      - ./db_migrations:/migrations
+    depends_on:
+      - postgres
+
+  analytics-api:
+    build:
+      context: ./analytics_engine
+      dockerfile: Dockerfile
+    container_name: airframe-analytics-api
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/airframe?sslmode=disable
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - migrations
+
+  fleet-dashboard:
+    build:
+      context: ./fleet_dashboard
+      dockerfile: Dockerfile
+    container_name: airframe-dashboard
+    ports:
+      - "5173:80"
+    depends_on:
+      - analytics-api
+
+volumes:
+  postgres_data:

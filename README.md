@@ -1,74 +1,80 @@
-# ✈️ Airframe Lifecycle Tracker
+# Airframe Lifecycle Tracker
 
-## 📖 Description
-Airframe Lifecycle Tracker is a high-performance analytics platform and visual dashboard designed to manage and track the immutable facts and historical lifecycle data of commercial airframes, including the MD-11, Boeing 737, and DC-8. Built with a robust Go backend and a modern React/TypeScript frontend, the system handles heavy multi-dimensional data, downtime tracking, and complex state changes over time.
+Airframe Lifecycle Tracker is a full-stack analytics system for tracking immutable airframe facts, SCD Type 2 configuration history, and maintenance downtime trends for aircraft models such as MD-11, Boeing 737, and DC-8.
 
-## 📑 Table of Contents
-- [Features](#-features)
-- [Technologies Used](#-technologies-used)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Contributing](#-contributing)
-- [License](#-license)
+## Blueprint Coverage
 
-## 🚀 Features
-* **Time-Travel Analytics**: Executes time-travel queries for historical livery and seating using SCD Type 2 configurations.
-* **High-Performance Pipeline**: Spawns Goroutines in the Go analytics engine to concurrently fetch multi-dimensional data.
-* **Advanced Visualizations**: Features a React dashboard with an interactive Timeline Scrubber for historical changes, an expandable Downtime Data Grid, and a Maintenance Heatmap for D-Check frequencies.
-* **Heavy Data Pre-computation**: Utilizes PostgreSQL materialized views to pre-compute heavy CUBE matrices for fast analytical querying.
-* **Complex Global Filtering**: Implements Zustand to manage complex global filters for Year, Model, and Operator data.
+The repository now includes the complete architecture described in the blueprint:
 
-## 🛠️ Technologies Used
-**Backend & Analytics Engine:**
-* **Go**: High-performance data pipeline and minimal binary generation.
-* **Chi / Gorilla Mux**: Router logic for API endpoints.
-* **PostgreSQL & pgx**: Persistent data storage and database connection pooling.
-* **golang-migrate**: Strict version control for database schemas and state changes.
+- Go analytics API with concurrent service handlers
+- PostgreSQL schema and migration set for SCD Type 2 and maintenance facts
+- Materialized CUBE analytics view
+- React plus TypeScript dashboard with timeline scrubber, downtime data grid, and maintenance heatmap
+- Docker and Docker Compose local environment
+- Kubernetes manifests for database, API, dashboard, and ingress
+- GitHub Actions workflows for API tests, migration validation, and dashboard build
 
-**Frontend (Visual Presentation Layer):**
-* **React & TypeScript**: Interactive user interface components.
-* **Zustand**: Complex state and filter management.
-* **React Query / SWR**: Aggressive data caching for matrix responses.
-* **CSS-in-JS**: Minimalist blue/purple color palette theming.
+## Project Structure
 
-**Infrastructure & DevOps:**
-* **Docker & Docker Compose**: Multi-stage builds and local development orchestration.
-* **Nginx**: Ingress routing and static asset serving.
-* **GitHub Actions**: Automated CI/CD pipelines for testing Go APIs and migration verification.
+- analytics_engine: Go API, repository queries, service logic, models, and router
+- db_migrations: ordered SQL migrations with seed data and materialized view creation
+- fleet_dashboard: React plus TypeScript dashboard
+- infrastructure: Kubernetes manifests for runtime deployment
+- .github/workflows: CI pipelines
 
-## 💻 Installation
-1. Clone the repository to your local machine.
-2. Ensure Docker and Docker Compose are installed on your system.
-3. Use the provided Makefile to spin up the local development environment:
-   ```bash
-   # Spins up Postgres, the Go Engine, and the React Dashboard
-   docker-compose up
+## Local Development
 
-   ```
+### Prerequisites
 
+- Docker
+- Docker Compose
 
-4. Run the database migrations to initialize the schema:
+### Start everything
 
 ```bash
-# Executes migrate up commands
-make migrate-up
-
+make up
 ```
 
+Services:
 
+- Dashboard: http://localhost:5173
+- API: http://localhost:8080
+- Health: http://localhost:8080/health
 
-## 💡 Usage
+### Stop everything
 
-Once the containers are running, the Nginx ingress will route traffic appropriately between the frontend and backend.
+```bash
+make down
+```
 
-* **Frontend**: Access the interactive dashboard to view the timeline scrubbers and heatmaps.
-* **API Endpoints**: The Go backend exposes endpoints such as `/api/v1/analytics/downtime` and `/api/v1/fleet` to deliver strict JSON payloads defining the analytical data.
+### Stream logs
 
-## 🤝 Contributing
+```bash
+make logs
+```
 
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+## API Endpoints
 
-## 📄 License
+- GET /health
+- GET /api/v1/fleet?year=2025&model=MD-11&operator=Atlas%20Air
+- GET /api/v1/fleet/{tailNumber}/history
+- GET /api/v1/analytics/downtime?from=2025-01-01&to=2025-12-31&model=MD-11
 
-This project is licensed under the MIT License - Copyright (c) 2026 Matthew Penner.
-The software is provided "as is", without warranty of any kind, express or implied. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability. See the `LICENSE` file for full details.
+## Database and Analytics
+
+Migrations create and seed:
+
+- airframes immutable base table
+- airframe_configurations SCD Type 2 history table
+- maintenance_logs fact table
+- mv_fleet_cube materialized view for heavy analytical rollups
+
+## CI Pipelines
+
+- test-go-api.yml: runs Go module download and go test
+- test-migrations.yml: applies migrations to Postgres and validates the analytics view
+- build-dashboard.yml: installs frontend dependencies and runs production build
+
+## License
+
+MIT. See LICENSE.

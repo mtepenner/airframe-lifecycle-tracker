@@ -1,0 +1,26 @@
+name: build-dashboard
+
+on:
+  push:
+    paths:
+      - fleet_dashboard/**
+      - .github/workflows/build-dashboard.yml
+  pull_request:
+    paths:
+      - fleet_dashboard/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fleet_dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Build dashboard
+        run: npm run build

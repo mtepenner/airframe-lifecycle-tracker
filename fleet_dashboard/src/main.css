@@ -1,0 +1,153 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(circle at 20% 0%, #1d4ed8, #020617 45%);
+  color: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.page {
+  width: min(1120px, 92vw);
+  margin: 1.5rem auto 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  background: linear-gradient(130deg, rgba(56, 189, 248, 0.2), rgba(167, 139, 250, 0.16));
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2vw, 2.2rem);
+}
+
+.panel {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.filters .filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+input {
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 0.55rem 0.6rem;
+}
+
+.slider {
+  width: 100%;
+}
+
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.timeline-list li {
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.grid-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.55rem;
+  border-bottom: 1px solid #334155;
+  white-space: nowrap;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.5rem;
+}
+
+.heat-cell {
+  min-height: 80px;
+  border-radius: 10px;
+  padding: 0.55rem;
+  display: grid;
+  align-content: space-between;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.heat-month {
+  font-size: 0.8rem;
+  color: #dbeafe;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stats p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .page {
+    width: 95vw;
+  }
+}
